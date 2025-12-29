@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MLBB Skin Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0d1117; color: white; margin: 0; padding: 20px; text-align: center; }
+        .card { background: #161b22; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #30363d; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        h2 { color: #f39c12; margin-bottom: 25px; }
+        .item-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .price { color: #f39c12; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #f39c12; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        button:active { transform: scale(0.95); background: #e67e22; }
+    </style>
+</head>
+<body>
+
+    <h2>MLBB Skin Shop</h2>
+
+    <div class="card">
+        <div class="item-name">Gusion Soul</div>
+        <div class="price">15,000 Ks</div>
+        <button onclick="sendOrder('Gusion Soul', '15,000 Ks')">Buy Now</button>
+    </div>
+
+    <div class="card">
+        <div class="item-name">Alucard Lightborn</div>
+        <div class="price">12,000 Ks</div>
+        <button onclick="sendOrder('Alucard Lightborn', '12,000 Ks')">Buy Now</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // --- BOT CONFIGURATION ---
+        const BOT_TOKEN = '8484385102:AAHHBtd9m2FgnPSTaUsMZJnFxhmKCwWWQGM';
+        const ADMIN_CHAT_ID = '7215904883'; // Yukihey ၏ ID
+
+        async function sendOrder(item, price) {
+            const user = tg.initDataUnsafe.user;
+            
+            // User အချက်အလက်များကို Error မတက်အောင် စနစ်တကျယူခြင်း
+            const name = user && user.first_name ? user.first_name : 'Guest User';
+            const uid = user && user.id ? user.id : 'N/A';
+            const username = user && user.username ? `@${user.username}` : 'No Username';
+
+            const text = ` *New Order Received!*\n\n` +
+                         ` *Customer:* ${name}\n` +
+                         ` *User ID:* \`${uid}\`\n` +
+                         ` *Username:* ${username}\n` +
+                         ` *Item:* ${item}\n` +
+                         ` *Price:* ${price}`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: text,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    tg.showAlert(" Order အောင်မြင်စွာ ပို့ပြီးပါပြီ။");
+                } else {
+                    tg.showAlert(" Error: " + result.description);
+                }
+            } catch (error) {
+                tg.showAlert(" အင်တာနက်လိုင်း ချို့ယွင်းနေပါသည်။");
+            }
+        }
+    </script>
+</body>
+</html>
